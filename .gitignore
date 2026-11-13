@@ -1,0 +1,10 @@
+# game files and local state: never commit (hlboot.dat belongs to the game's developers)
+hlboot.dat*
+*.hdll
+events.h
+haptics.log
+intensity.txt
+ch-off
+hd-on
+__pycache__/
+.DS_Store
