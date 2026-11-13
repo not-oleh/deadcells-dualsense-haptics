@@ -22,11 +22,9 @@ Return to Castlevania).
 
 ## Tested with
 
-| | |
-|---|---|
-| Game | Dead Cells (Steam), **v35 (2026-06-16 - 8b5231c - 31 - Steam)**, Steam build 23762174 (updated 2026-11-13), all DLCs installed |
-| Controller | Sony DualSense Wireless Controller (PS5), connected over **Bluetooth** |
-| Mac | MacBook Pro, Apple M4 Pro, macOS 27.2.1 |
+- **Game:** Dead Cells (Steam), v35 (2026-06-16 - 8b5231c - 31 - Steam), Steam build 23762174 (updated 2026-11-13), all DLCs installed
+- **Controller:** Sony DualSense Wireless Controller (PS5), connected over Bluetooth
+- **Mac:** MacBook Pro, Apple M4 Pro, macOS 27.2.1
 
 Other Macs and macOS versions with DualSense support in System Settings should work. A
 **different game version** may move or rename the functions this mod hooks. The installer then
