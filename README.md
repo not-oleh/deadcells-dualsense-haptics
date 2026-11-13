@@ -26,7 +26,7 @@ Return to Castlevania).
 
 | | |
 |---|---|
-| Game | Dead Cells (Steam), **GAME_VERSION**, Steam build 23762174 (updated 2026-11-13), all DLCs installed |
+| Game | Dead Cells (Steam), **v35 (2026-06-16 - 8b5231c - 31 - Steam)**, Steam build 23762174 (updated 2026-11-13), all DLCs installed |
 | Controller | Sony DualSense Wireless Controller (PS5), connected over **Bluetooth** |
 | Mac | MacBook Pro, Apple M4 Pro, macOS 27.2.1 |
 
