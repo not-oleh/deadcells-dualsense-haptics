@@ -1,11 +1,10 @@
 # Dead Cells — DualSense Haptics for macOS
 
-Feel every roll, slash and kill in **Dead Cells** on a **PS5 DualSense** controller on your Mac.
+Haptic feedback for Dead Cells on a PS5 DualSense controller on macOS.
 
 The game only has basic vibration. This mod adds haptic feedback to around 50 actions, gives
-**every weapon and skill its own pattern** (with different hits within a combo), and plays them
-through Apple's own controller haptics, the same API behind the *Identify* button in
-System Settings › Game Controllers. It works over **Bluetooth**.
+every weapon and skill its own pattern (with different hits within a combo), and plays them
+through Apple's Core Haptics. It works over Bluetooth.
 
 ## What you feel
 
@@ -16,8 +15,7 @@ System Settings › Game Controllers. It works over **Bluetooth**.
 | **Bows & crossbows** | A snap for light bows, a heavy kick for crossbows, a blast for explosive ones, and a tick when you start charging |
 | **Movement** | Footstep taps, jump, double jump, drop-through, landing (soft and hard), ledge grab, ladders, water |
 | **Combat** | Hits, crits, kills, boss kills, parries, perfect dodges, taking damage, dive-attack slam, curses, death |
-| **Loot & world** | Gold and cells, items, blueprints, boss cells, chests, **shop purchases**, doors, teleporters, healing flask |
-| **King Scepter** | A royal gong on use, a whirl between the grips while spinning, and a thud when the spin ends |
+| **Loot & world** | Gold and cells, items, blueprints, boss cells, chests, shop purchases, doors, teleporters, healing flask |
 
 DLC weapons are included (Rise of the Giant, The Bad Seed, Fatal Falls, The Queen and the Sea,
 Return to Castlevania).
