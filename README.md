@@ -1,54 +1,37 @@
-# Dead Cells — DualSense Haptics for macOS
+# Dead Cells DualSense Haptics (macOS)
 
-Haptic feedback for Dead Cells on a PS5 DualSense controller on macOS.
+Replaces Dead Cells' basic rumble with Core Haptics effects on a DualSense over Bluetooth.
 
-The game only has basic vibration. This mod adds haptic feedback to around 50 actions, gives
-every weapon and skill its own pattern (with different hits within a combo), and plays them
-through Apple's Core Haptics. It works over Bluetooth.
+- 45 hooked game events: movement, combat, loot, doors, death
+- 218 weapon and skill patterns generated from the game's own combo data, one per combo strike
+- Dodge roll sweeps across the controller in the direction you roll
+- Slashes play on the side you're facing
+- All DLC weapons included
 
-## What you feel
+## Requirements
 
-| Action | Feel |
-|---|---|
-| **Dodge roll** | A dash that travels across the controller: start grip → middle → end grip, in the direction you roll |
-| **Weapons & skills** | ~220 patterns built from the game's own combo data: power, wind-up and recovery of each strike. Finishers hit harder; slashes play on the side you face |
-| **Bows & crossbows** | A snap for light bows, a heavy kick for crossbows, a blast for explosive ones, and a tick when you start charging |
-| **Movement** | Footstep taps, jump, double jump, drop-through, landing (soft and hard), ledge grab, ladders, water |
-| **Combat** | Hits, crits, kills, boss kills, parries, perfect dodges, taking damage, dive-attack slam, curses, death |
-| **Loot & world** | Gold and cells, items, blueprints, boss cells, chests, shop purchases, doors, teleporters, healing flask |
+- Dead Cells (Steam, macOS). Tested on v35, Steam build 23762174, all DLCs
+- DualSense paired over Bluetooth (hold **PS + Create** until the light bar flashes)
+- macOS 12+, Apple Silicon or Intel. Tested on an M4 Pro, macOS 27.2.1
 
-DLC weapons are included (Rise of the Giant, The Bad Seed, Fatal Falls, The Queen and the Sea,
-Return to Castlevania).
-
-## Tested with
-
-- **Game:** Dead Cells (Steam), v35 (2026-06-16 - 8b5231c - 31 - Steam), Steam build 23762174 (updated 2026-11-13), all DLCs installed
-- **Controller:** Sony DualSense Wireless Controller (PS5), connected over Bluetooth
-- **Mac:** MacBook Pro, Apple M4 Pro, macOS 27.2.1
-
-Needs macOS 12 or newer, on Apple Silicon or Intel. A **different game version** may move or rename
-the functions this mod hooks. The installer then stops with "this Dead Cells version isn't supported
-yet" and leaves the game untouched.
+Other game versions may rename the hooked functions. The installer checks this first and leaves the
+game untouched if it doesn't match.
 
 ## Install
 
-1. Pair the DualSense in **System Settings › Bluetooth**: hold **PS + Create** until the light bar flashes.
-2. Quit Dead Cells, open **Terminal** and paste:
+Quit the game and run:
 
-   ```bash
-   curl -fsSL https://github.com/not-oleh/deadcells-dualsense-haptics/releases/latest/download/install.sh | sh
-   ```
+```bash
+curl -fsSL https://github.com/not-oleh/deadcells-dualsense-haptics/releases/latest/download/install.sh | sh
+```
 
-3. Start Dead Cells from Steam. In the game's options, **turn off the in-game vibration**:
-   the mod replaces it.
+Then turn off vibration in the game's options.
 
-No developer tools needed. The installer finds your Dead Cells folder (other Steam library drives
-too), backs up the original game file to `Dead Cells/haptics-mod/hlboot.dat.original`, patches the
-game and copies the mod in. Steam installed somewhere unusual? Add
-`DEAD_CELLS_DIR="/path/to/Dead Cells"` in front of `sh`.
+The installer finds the game across Steam library folders, backs up `hlboot.dat` to
+`haptics-mod/hlboot.dat.original`, and patches it. For a non-standard location, put
+`DEAD_CELLS_DIR="/path/to/Dead Cells"` before `sh`.
 
-**After every Dead Cells update**, run the same command again. The update brings back the
-unpatched game file, and the installer takes it as the new backup.
+Re-run it after every game update: the update restores the unpatched file.
 
 ## Uninstall
 
@@ -56,50 +39,46 @@ unpatched game file, and the installer takes it as the new backup.
 curl -fsSL https://github.com/not-oleh/deadcells-dualsense-haptics/releases/latest/download/install.sh | sh -s uninstall
 ```
 
-Or run `Dead Cells/haptics-mod/uninstall.sh`, or use Steam › Dead Cells › Properties ›
-Installed Files › **Verify integrity of game files** and delete the `haptics-mod` folder.
+Or run `haptics-mod/uninstall.sh`, or verify game files in Steam and delete `haptics-mod`.
 
 ## Tuning
 
-All of these files are in `haptics-mod/`. Changes apply the next time you start the game.
+Files in `haptics-mod/`, read at game launch:
 
-| Want to… | Do this |
+| File | Effect |
 |---|---|
-| Make everything weaker | Put a number from `0.0` to `1.0` in `intensity.txt` (e.g. `0.6`) |
-| Change one weapon or skill | Edit its line in `weapons.txt`: one pattern per combo strike, separated by `\|`. Each step is `left,right,ms` (strength 0–255); `>` = play on the side you face |
-| Change the dodge dash | Timings are in `ch_dash()` in `ch.m` ([build from source](#build-from-source)) |
-| Change other actions | Edit `PATTERNS` in `haptics.c` ([build from source](#build-from-source)) |
-| Go back to classic rumble | Create an empty file named `ch-off` |
-| See what's firing | Check `haptics.log` (controller found, first hits of each event, weapons used) |
+| `intensity.txt` | Global strength, `0.0`–`1.0` |
+| `weapons.txt` | One line per weapon: `id [>] strike1 \| strike2 ...`, each step `left,right,ms` (0–255). `>` plays toward your facing side |
+| `ch-off` | Empty file: use SDL rumble instead of Core Haptics |
+| `hd-on` | Empty file: enable experimental raw Bluetooth haptics |
+| `haptics.log` | Controller detection and fired events |
+
+Other effects live in `PATTERNS` in `haptics.c`, the dodge sweep in `ch_dash()` in `ch.m`. Both need
+a rebuild.
 
 ## How it works
 
-Dead Cells runs on the HashLink VM. `dchpatch` reads the game's bytecode (`hlboot.dat`) and inserts
-a call at the start of about 45 game functions: `Hero.onDie`, `DodgeRoll.onStart`, `ShopBooth.buy`,
-`Weapon.onExecute`, and so on. Each call goes into a small native library, `haptics.hdll`, which
-loads the same way the game's own `sdl.hdll` does. For weapons and skills, the injected code also
-passes the item's ID and combo step, so every weapon can feel different.
-
-`haptics.hdll` plays the effects through Apple's **GameController + Core Haptics**. Most effects
-play on both grips, centred, with sharpness matched to how heavy the pattern is. Directional
-effects play on one side or sweep across. Very short ones are crisp taps. If Core Haptics isn't
-available, it falls back to the game's own SDL rumble.
+Dead Cells runs on HashLink. `dchpatch` parses `hlboot.dat` and inserts a native call at the start of
+each function listed in `events.def` (`Hero.onDie`, `DodgeRoll.onStart`, `Weapon.onExecute`, ...).
+Weapon hooks also pass the item ID and combo step. The calls land in `haptics.hdll`, which the game
+loads like its own `sdl.hdll`, and which plays patterns through GameController + Core Haptics,
+falling back to SDL rumble if Core Haptics is unavailable.
 
 | File | Role |
 |---|---|
-| `dchpatch.c` | HashLink bytecode reader/patcher: finds the hooked functions by name and inserts the calls |
-| `events.def` | Which game function triggers which effect (shared by the patcher and the library) |
-| `haptics.c` | The native library: effect patterns, priorities (footsteps never cut off a death), `weapons.txt` loader |
-| `ch.m` | Core Haptics output, including the dodge dash |
-| `gen_weapons.py`, `pak.py` | Regenerate `weapons.txt` from the game's item database in `res.pak` (overwrites your edits) |
-| `hd.c` | Experimental raw Bluetooth HD haptics (see below) |
+| `dchpatch.c` | Bytecode patcher |
+| `events.def` | Game function → event map, shared by patcher and library |
+| `haptics.c` | Patterns, priorities, `weapons.txt` loader |
+| `ch.m` | Core Haptics output |
+| `gen_weapons.py`, `pak.py` | Regenerate `weapons.txt` from `res.pak` (overwrites edits) |
+| `hd.c` | Raw Bluetooth HD haptics (report `0x32`) |
 
-To add an effect: add a line to `events.def` and a pattern to `PATTERNS` in `haptics.c`, then build.
+New effect: add a line to `events.def` and a pattern to `PATTERNS`, then rebuild.
 
-### Build from source
+### Build
 
-Needs Xcode Command Line Tools (`xcode-select --install`). Clone the repo into the game folder as
-`haptics-mod` (the build links the game's own SDL library), then build and install:
+Needs Xcode Command Line Tools. The repo must sit in the game folder as `haptics-mod`, since the
+build links the game's SDL:
 
 ```bash
 cd ~/Library/Application\ Support/Steam/steamapps/common/Dead\ Cells
@@ -107,20 +86,17 @@ git clone https://github.com/not-oleh/deadcells-dualsense-haptics haptics-mod
 cd haptics-mod && ./build.sh && ./install.sh
 ```
 
-`build.sh` writes `dist/dead-cells-haptics.zip`, the same package the GitHub release ships.
-`install.sh` uses those local files instead of downloading.
+`build.sh` produces `dist/dead-cells-haptics.zip` (the release package); `install.sh` uses it
+instead of downloading.
 
-### Experimental: raw Bluetooth HD haptics
+### Raw Bluetooth HD haptics
 
-`hd.c` streams audio-rate haptics straight to the DualSense's voice coils over Bluetooth (output
-report `0x32`). It works, but on macOS it only gets enough Bluetooth bandwidth while the game window
-is focused, and in testing it felt choppier than Core Haptics. It's **off** by default. Create an
-empty `hd-on` file to try it. The protocol comes from the reverse-engineering work in
-[SAxense](https://github.com/egormanga/SAxense) and [DS5Dongle](https://github.com/awalol/DS5Dongle).
+`hd.c` streams audio-rate data straight to the voice coils. It's off by default: macOS only gives it
+enough bandwidth while the game window is focused, and it feels choppier than Core Haptics. Protocol
+from [SAxense](https://github.com/egormanga/SAxense) and [DS5Dongle](https://github.com/awalol/DS5Dongle).
 
 ## Notes
 
-- This mod changes a game file. Keep `hlboot.dat.original` until you uninstall.
-- Only tested on macOS with the Steam version. Windows and Linux builds of the game are not supported.
-- Not affiliated with or endorsed by Motion Twin, Evil Empire or Sony. Dead Cells and DualSense
-  are trademarks of their respective owners. No game files are included in this repository.
+- Keep `hlboot.dat.original` until you uninstall.
+- macOS Steam version only.
+- Not affiliated with Motion Twin, Evil Empire or Sony. No game files are included.
