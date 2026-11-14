@@ -77,8 +77,8 @@ New effect: add a line to `events.def` and a pattern to `PATTERNS`, then rebuild
 
 ### Build
 
-Needs Xcode Command Line Tools and the game installed (the build links the game's SDL, found the same
-way the installer finds the game). Clone anywhere:
+Needs only Xcode Command Line Tools; the game doesn't have to be installed (SDL calls bind at runtime
+to the game's own SDL). Clone anywhere:
 
 ```bash
 git clone https://github.com/not-oleh/deadcells-dualsense-haptics

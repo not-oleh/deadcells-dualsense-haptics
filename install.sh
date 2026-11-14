@@ -2,7 +2,7 @@
 # Dead Cells DualSense haptics for macOS: installer.
 #   curl -fsSL https://github.com/not-oleh/deadcells-dualsense-haptics/releases/latest/download/install.sh | sh
 #   ... | sh -s uninstall
-#   install.sh where      prints the Dead Cells folder (used by build.sh)
+#   install.sh where      prints the Dead Cells folder
 # Uses the prebuilt files next to this script if present (unzipped release or ./build.sh output),
 # otherwise downloads the latest release. Set DEAD_CELLS_DIR to point at an unusual game folder.
 set -e
