@@ -1,5 +1,5 @@
 // haptics.hdll — HashLink native called by the patched hlboot.dat: haptics.dch_event(id).
-// Plays rumble patterns on the controller through the game's own SDL2 (works over USB and Bluetooth).
+// Plays patterns through Core Haptics (ch.m), falling back to the game's own SDL2 rumble.
 #include <dlfcn.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -17,6 +17,7 @@ extern int SDL_NumJoysticks(void);
 extern int SDL_IsGameController(int);
 extern SDL_GameController *SDL_GameControllerOpen(int);
 extern int SDL_GameControllerGetAttached(SDL_GameController *);
+extern void SDL_GameControllerClose(SDL_GameController *);
 extern int SDL_GameControllerGetType(SDL_GameController *);
 extern const char *SDL_GameControllerName(SDL_GameController *);
 extern int SDL_GameControllerRumble(SDL_GameController *, unsigned short, unsigned short, unsigned);
@@ -84,7 +85,7 @@ static const Pattern PATTERNS[EV_COUNT] = {
 static Pattern DODGE_RIGHT, DODGE_LEFT; // built in build_dodge()
 
 // Smooth roll wave: equal-power crossfade from the grip you leave to the grip you roll toward,
-// 16 steps x 15 ms (~ roll length). Strength swells mid-roll so the wave feels like it carries through.
+// 16 steps x 19 ms (~ roll length). Strength swells mid-roll so the wave feels like it carries through.
 static void build_dodge(void) {
     const int steps = MAX_STEPS, ms = 19; // ~300 ms, the length that felt best in HD tests
     DODGE_RIGHT.prio = DODGE_LEFT.prio = 3;
@@ -226,9 +227,9 @@ static void init_once(void) {
         snprintf(path + dir, sizeof path - dir, "haptics-mod/weapons.txt");
         load_items(path);
         snprintf(path + dir, sizeof path - dir, "haptics-mod/hd-on");
-        hd_enabled = access(path, F_OK) == 0;
+        hd_enabled = access(path, F_OK) == 0; // experimental HD haptics are opt-in (create the empty file)
         snprintf(path + dir, sizeof path - dir, "haptics-mod/ch-off");
-        ch_enabled = access(path, F_OK) != 0; // experimental HD haptics are opt-in (create the empty file)
+        ch_enabled = access(path, F_OK) != 0;
         snprintf(path + dir, sizeof path - dir, "haptics-mod/haptics.log");
         logfile = fopen(path, "w");
     }
@@ -243,8 +244,13 @@ static void find_controller(void) {
     for (int i = 0; i < SDL_NumJoysticks(); i++) {
         if (!SDL_IsGameController(i)) continue;
         SDL_GameController *c = SDL_GameControllerOpen(i); // refcounted: returns the game's handle
-        if (c && (!best || SDL_GameControllerGetType(c) == SDL_CONTROLLER_TYPE_PS5)) best = c;
+        if (!c) continue;
+        if (!best || (SDL_GameControllerGetType(c) == SDL_CONTROLLER_TYPE_PS5 && SDL_GameControllerGetType(best) != SDL_CONTROLLER_TYPE_PS5)) {
+            if (best) SDL_GameControllerClose(best);
+            best = c;
+        } else SDL_GameControllerClose(c); // drop our extra ref on controllers we don't use
     }
+    // the old detached gc keeps its ref: the worker thread may still be rumbling on it
     if (best != gc && logfile) { fprintf(logfile, "controller: %s\n", best ? SDL_GameControllerName(best) : "none"); fflush(logfile); }
     gc = best;
 }
