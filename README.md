@@ -77,13 +77,12 @@ New effect: add a line to `events.def` and a pattern to `PATTERNS`, then rebuild
 
 ### Build
 
-Needs Xcode Command Line Tools. The repo must sit in the game folder as `haptics-mod`, since the
-build links the game's SDL:
+Needs Xcode Command Line Tools and the game installed (the build links the game's SDL, found the same
+way the installer finds the game). Clone anywhere:
 
 ```bash
-cd ~/Library/Application\ Support/Steam/steamapps/common/Dead\ Cells
-git clone https://github.com/not-oleh/deadcells-dualsense-haptics haptics-mod
-cd haptics-mod && ./build.sh && ./install.sh
+git clone https://github.com/not-oleh/deadcells-dualsense-haptics
+cd deadcells-dualsense-haptics && ./build.sh && ./install.sh
 ```
 
 `build.sh` produces `dist/dead-cells-haptics.zip` (the release package); `install.sh` uses it

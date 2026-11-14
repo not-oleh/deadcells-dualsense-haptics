@@ -1,11 +1,11 @@
 #!/bin/sh
 # Developer build: compiles dchpatch (universal) and haptics.hdll (x86_64, the game runs under Rosetta)
 # into dist/ and packs dist/dead-cells-haptics.zip for a GitHub release. Needs Xcode Command Line Tools.
-# Run it from inside the Dead Cells folder (as haptics-mod/), since it links the game's own libSDL2.
+# Needs Dead Cells installed: haptics.hdll links the game's own libSDL2 (found like install.sh does).
 set -e
 cd "$(dirname "$0")"
-GAME=..
-[ -f "$GAME/libSDL2-2.0.0.dylib" ] || { echo "error: run from <Dead Cells>/haptics-mod (needs the game's libSDL2)"; exit 1; }
+GAME=$(sh install.sh where)
+[ -f "$GAME/libSDL2-2.0.0.dylib" ] || { echo "error: libSDL2 not found in $GAME"; exit 1; }
 rm -rf dist && mkdir -p dist/pkg
 clang -O2 -Wall -arch arm64 -arch x86_64 -mmacosx-version-min=12.0 -o dist/pkg/dchpatch dchpatch.c
 clang -arch x86_64 -O2 -Wall -mmacosx-version-min=12.0 -dynamiclib -o dist/pkg/haptics.hdll haptics.c hd.c ch.m -fobjc-arc \
