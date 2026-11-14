@@ -88,6 +88,9 @@ cd deadcells-dualsense-haptics && ./build.sh && ./install.sh
 `build.sh` produces `dist/dead-cells-haptics.zip` (the release package); `install.sh` uses it
 instead of downloading.
 
+Releases are built by GitHub Actions: pushing a tag (`git tag v1.0.2 && git push origin v1.0.2`)
+builds the zip and publishes it with `install.sh` as the latest release.
+
 ### Raw Bluetooth HD haptics
 
 `hd.c` streams audio-rate data straight to the voice coils. It's off by default: macOS only gives it

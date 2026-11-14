@@ -1,0 +1,25 @@
+# Push a tag like v1.0.2 to build and publish a release. Run it by hand (Actions > release > Run workflow)
+# to only build and download the zip as a workflow artifact, without publishing.
+name: release
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dead-cells-haptics
+          path: dist/dead-cells-haptics.zip
+      - if: startsWith(github.ref, 'refs/tags/')
+        run: gh release create "$GITHUB_REF_NAME" dist/dead-cells-haptics.zip install.sh --title "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
